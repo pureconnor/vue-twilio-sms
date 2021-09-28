@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My first Vue app</title>
+    <script src="https://unpkg.com/vue"></script>
+    <link rel="stylesheet" href="index.css" type="text/css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="form" @click="clearMessage">
+        <label for="recipient">To</label>
+        <input
+          class="recipient"
+          type="tel"
+          name="recipient"
+          v-model.trim="recipient"
+          required
+        />
+        <label for="message-body">Message</label>
+        <textarea
+          class="messageBody"
+          type="text"
+          name="message-body"
+          v-model="message"
+        ></textarea>
+        <button @click="sendMessage">
+          Send
+          <img src="./send.webp" width="16px" height="16px" />
+        </button>
+        <div class="response-container">
+          <span class="success" v-if="success">Success!</span>
+          <span class="error" v-if="error">Oops! {{ error }}</span>
+        </div>
+      </div>
+      <footer>
+        Icons made by
+        <a href="https://www.freepik.com" title="Freepik">Freepik</a> from
+        <a href="https://www.flaticon.com/" title="Flaticon"
+          >www.flaticon.com</a
+        >
+      </footer>
+    </div>
+
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          success: false,
+          error: undefined,
+          recipient: "",
+          message: "",
+        },
+        methods: {
+          async sendMessage() {
+            fetch("/send", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                message: this.message,
+                recipient: this.recipient,
+              }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                if (data.ok) {
+                  this.success = true;
+                } else {
+                  this.error = data.message;
+                }
+              })
+              .catch((e) => {
+                console.log("Error: ", e);
+              });
+          },
+          clearMessage() {
+            this.error = undefined;
+            this.success = false;
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
